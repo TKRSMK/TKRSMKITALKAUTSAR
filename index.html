@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Website Resmi TKR SMK IT Al Kautsar Blitar</title>
+<meta name="description" content="Website resmi Program Keahlian Teknik Kendaraan Ringan SMK IT Al Kautsar Blitar: profil jurusan, tenaga pendidik, alumni, pengumuman, dan berita.">
+<link rel="icon" href="logo-tkr.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;1,800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="gaya.css">
+</head>
+<body>
+
+<!-- Transisi pembuka -->
+<div id="intro" aria-hidden="true">
+  <div class="intro-logo-baris">
+    <img class="il il-1" id="introLogoSekolah" src="logo-sekolah.png" alt="">
+    <span class="intro-sekat"></span>
+    <img class="il il-2" id="introLogo" src="logo-tkr.png" alt="">
+  </div>
+  <div class="intro-teks">
+    <span class="baris"><span>Selamat Datang Di Website Resmi</span></span>
+    <span class="baris besar"><span>TKR SMK IT AL KAUTSAR BLITAR</span></span>
+  </div>
+  <button class="intro-lewati" id="introLewati" type="button">Lewati</button>
+  <div class="garis g1"></div><div class="garis g2"></div><div class="garis g3"></div>
+</div>
+
+<header class="atas" id="atas">
+  <div class="atas-isi">
+    <a class="merek" href="#/">
+      <img id="logoNavSekolah" src="logo-sekolah.png" alt="Logo SMK IT Al Kautsar">
+      <img id="logoNav" src="logo-tkr.png" alt="Logo TKR">
+      <span><b>TKR</b><small>SMK IT Al Kautsar Blitar</small></span>
+    </a>
+    <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="nav" type="button">
+      <span></span><span></span><span></span><b class="sr">Menu</b>
+    </button>
+    <nav id="nav" class="nav">
+      <a href="#/" data-r="">Beranda</a>
+      <a href="#/profil" data-r="profil">Profil Jurusan</a>
+      <a href="#/pendidik" data-r="pendidik">Tenaga Pendidik</a>
+      <a href="#/alumni" data-r="alumni">Lulusan dan Alumni</a>
+      <a href="#/pengumuman" data-r="pengumuman">Pengumuman</a>
+      <a href="#/berita" data-r="berita">Berita</a>
+    </nav>
+  </div>
+</header>
+
+<div id="banner-pratinjau" class="pratinjau" hidden>Mode pratinjau: menampilkan draf dari panel kelola, belum diterbitkan.</div>
+
+<main id="isi" tabindex="-1"></main>
+
+<footer class="kaki">
+  <div class="kaki-isi">
+    <div>
+      <div class="kaki-logo"><img id="logoKakiSekolah" src="logo-sekolah.png" alt="" width="56" height="56"><img id="logoKaki" src="logo-tkr.png" alt="" width="56" height="56"></div>
+      <p class="kaki-nama">Teknik Kendaraan Ringan<br>SMK IT Al Kautsar Blitar</p>
+    </div>
+    <div id="kakiKontak"></div>
+    <div class="kaki-tautan">
+      <a href="#/profil">Profil Jurusan</a>
+      <a href="#/pengumuman">Pengumuman</a>
+      <a href="#/berita">Berita</a>
+      <a href="admin.html" class="kelola">Kelola konten</a>
+    </div>
+  </div>
+  <p class="kaki-hak">&copy; <span id="tahun"></span> TKR SMK IT Al Kautsar Blitar</p>
+</footer>
+
+<script src="konten.js"></script>
+<script src="situs.js"></script>
+</body>
+</html>
