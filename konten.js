@@ -175,12 +175,12 @@ window.KONTEN = {
       "lampiran": [
         {
           "nama": "WhatsApp Image 2026-10-09 at 10.35.06.jpeg",
-          "berkas": "lampiran/2026-10-09-mv0fsik60-whatsapp-image-2026-10-09-at-10.35.06.jpg",
+          "berkas": "lampiran/2026-10-09-mv0ftxx30-whatsapp-image-2026-10-09-at-10.35.06.jpg",
           "jenis": "gambar",
           "ukuran": ""
         }
       ],
-      "halamanBagi": "bvvs37"
+      "halamanBagi": "1ps9nf1"
     },
     {
       "id": "p1791517241813",
