@@ -166,12 +166,41 @@ window.KONTEN = {
   },
   "pengumuman": [
     {
+      "id": "p1791518058602",
+      "judul": "LIBUR KEGIATAN LDKS SISWA KELAS X DAN XI ",
+      "tanggal": "2026-10-09",
+      "kategori": "Umum",
+      "penting": false,
+      "isi": "pengumuman untuk siswa kelas X dan XI mengenai libur diakrenakan LDKS OSIS angkatan 2027",
+      "lampiran": [
+        {
+          "nama": "WhatsApp Image 2026-10-09 at 10.35.06.jpeg",
+          "berkas": "lampiran/2026-10-09-mv0fsik60-whatsapp-image-2026-10-09-at-10.35.06.jpg",
+          "jenis": "gambar",
+          "ukuran": ""
+        }
+      ],
+      "halamanBagi": "bvvs37"
+    },
+    {
+      "id": "p1791517241813",
+      "judul": "Pengumuman Libur Siswa Kelas X-XI SMK IT -AL KAUTSAR ",
+      "tanggal": "2026-10-09",
+      "kategori": "Umum",
+      "penting": false,
+      "isi": "",
+      "lampiran": [],
+      "halamanBagi": "kdw4t3"
+    },
+    {
       "id": "p1",
       "judul": "Pendaftaran Peserta Didik Baru Program TKR",
       "tanggal": "2026-10-05",
       "kategori": "Pendaftaran",
       "penting": true,
-      "isi": "Pendaftaran peserta didik baru untuk program keahlian Teknik Kendaraan Ringan telah dibuka. Informasi persyaratan dan jadwal dapat diperoleh di bagian tata usaha sekolah."
+      "isi": "Pendaftaran peserta didik baru untuk program keahlian Teknik Kendaraan Ringan telah dibuka. Informasi persyaratan dan jadwal dapat diperoleh di bagian tata usaha sekolah.",
+      "lampiran": [],
+      "halamanBagi": "z2aii0"
     },
     {
       "id": "p2",
@@ -179,7 +208,9 @@ window.KONTEN = {
       "tanggal": "2026-09-28",
       "kategori": "Akademik",
       "penting": false,
-      "isi": "Uji kompetensi keahlian dilaksanakan sesuai jadwal yang ditetapkan sekolah. Peserta didik diwajibkan membawa perlengkapan keselamatan kerja."
+      "isi": "Uji kompetensi keahlian dilaksanakan sesuai jadwal yang ditetapkan sekolah. Peserta didik diwajibkan membawa perlengkapan keselamatan kerja.",
+      "lampiran": [],
+      "halamanBagi": "r7ul1r"
     },
     {
       "id": "p3",
@@ -187,7 +218,9 @@ window.KONTEN = {
       "tanggal": "2026-09-15",
       "kategori": "PKL",
       "penting": false,
-      "isi": "Daftar pembagian tempat praktik kerja lapangan dapat dilihat di papan pengumuman bengkel TKR."
+      "isi": "Daftar pembagian tempat praktik kerja lapangan dapat dilihat di papan pengumuman bengkel TKR.",
+      "lampiran": [],
+      "halamanBagi": "1winyyv"
     }
   ],
   "berita": [
@@ -199,7 +232,8 @@ window.KONTEN = {
       "kategori": "Kegiatan",
       "gambar": "",
       "ringkasan": "Kegiatan praktik tune up dilaksanakan di bengkel sekolah dengan pendampingan guru produktif.",
-      "isi": "Peserta didik kelas XI program Teknik Kendaraan Ringan melaksanakan praktik tune up mesin bensin di bengkel sekolah. Kegiatan meliputi pemeriksaan busi, penyetelan celah katup, dan pembersihan filter udara.\n\nMelalui kegiatan ini, peserta didik diharapkan memahami prosedur perawatan berkala sesuai standar bengkel."
+      "isi": "Peserta didik kelas XI program Teknik Kendaraan Ringan melaksanakan praktik tune up mesin bensin di bengkel sekolah. Kegiatan meliputi pemeriksaan busi, penyetelan celah katup, dan pembersihan filter udara.\n\nMelalui kegiatan ini, peserta didik diharapkan memahami prosedur perawatan berkala sesuai standar bengkel.",
+      "halamanBagi": "1bj9mqm"
     },
     {
       "id": "b2",
@@ -209,7 +243,8 @@ window.KONTEN = {
       "kategori": "Kunjungan Industri",
       "gambar": "",
       "ringkasan": "Peserta didik mengenal alur kerja servis kendaraan di bengkel resmi.",
-      "isi": "Program keahlian TKR melaksanakan kunjungan industri ke bengkel mitra. Peserta didik mengamati proses penerimaan kendaraan, pengerjaan servis, hingga pemeriksaan akhir.\n\nKegiatan ini menjadi bekal sebelum peserta didik mengikuti praktik kerja lapangan."
+      "isi": "Program keahlian TKR melaksanakan kunjungan industri ke bengkel mitra. Peserta didik mengamati proses penerimaan kendaraan, pengerjaan servis, hingga pemeriksaan akhir.\n\nKegiatan ini menjadi bekal sebelum peserta didik mengikuti praktik kerja lapangan.",
+      "halamanBagi": "1m0moht"
     },
     {
       "id": "b3",
@@ -219,7 +254,10 @@ window.KONTEN = {
       "kategori": "Prestasi",
       "gambar": "",
       "ringkasan": "Perwakilan peserta didik TKR mengikuti lomba kompetensi siswa bidang otomotif.",
-      "isi": "Perwakilan peserta didik program TKR mengikuti lomba kompetensi siswa bidang teknologi otomotif. Persiapan dilakukan melalui latihan intensif di bengkel sekolah.\n\nSekolah mengapresiasi semangat peserta didik dan guru pembimbing yang telah berpartisipasi."
+      "isi": "Perwakilan peserta didik program TKR mengikuti lomba kompetensi siswa bidang teknologi otomotif. Persiapan dilakukan melalui latihan intensif di bengkel sekolah.\n\nSekolah mengapresiasi semangat peserta didik dan guru pembimbing yang telah berpartisipasi.",
+      "halamanBagi": "12b1xaw"
     }
-  ]
+  ],
+  "galeriDasbor": [],
+  "galeriBeranda": []
 };
