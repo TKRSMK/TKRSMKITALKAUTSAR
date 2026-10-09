@@ -150,33 +150,40 @@
   }
 
   var GALERI_BAWAAN = [{ gambar: "dasbor-1.svg" }, { gambar: "dasbor-2.svg" }, { gambar: "dasbor-3.svg" }];
+  var BERANDA_BAWAAN = [{ gambar: "beranda-2.svg" }, { gambar: "beranda-3.svg" }, { gambar: "beranda-1.svg" }];
   function galeri() {
     var g = (K.galeriDasbor || []).filter(function (x) { return x && x.gambar; });
     return g.length ? g : GALERI_BAWAAN;
   }
+  function galeriBeranda() {
+    var g = (K.galeriBeranda || []).filter(function (x) { return x && x.gambar; });
+    if (S.latarBeranda && !g.some(function (x) { return x.gambar === S.latarBeranda; })) g.unshift({ gambar: S.latarBeranda });
+    return { daftar: g.length ? g : BERANDA_BAWAAN, foto: g.length > 0 };
+  }
+  function slides(G) { return G.map(function (g, i) { return '<div class="slide' + (i === 0 ? " aktif" : "") + '" style="background-image:url(\'' + urlCss(g.gambar) + '\')"></div>'; }).join(""); }
   function urlCss(u) { return esc(String(u).replace(/'/g, "%27").replace(/\)/g, "%29")); }
   function dasbor() {
     var G = galeri(), ket0 = G[0].keterangan || "Ringkasan data Program Keahlian Teknik Kendaraan Ringan.";
     return '<section class="dasbor" aria-label="Dasbor jurusan"><div class="dasbor-latar" aria-hidden="true">' +
-      G.map(function (g, i) { return '<div class="slide' + (i === 0 ? " aktif" : "") + '" style="background-image:url(\'' + urlCss(g.gambar) + '\')"></div>'; }).join("") +
+      slides(G) +
       '</div><div class="dasbor-isi"><div class="dasbor-kepala"><div><h2>Dasbor jurusan</h2><p id="ketSlide">' + esc(ket0) + "</p></div>" +
       (G.length > 1 ? '<div class="titik">' + G.map(function (g, i) { return '<button type="button" aria-label="Gambar ' + (i + 1) + '"' + (i === 0 ? ' class="aktif"' : "") + "></button>"; }).join("") + "</div>" : "") +
       '</div><div class="meter-kisi">' + (K.statistik || []).map(meter).join("") + "</div></div></section>";
   }
-  var waktuSlide = null;
-  function jalankanSlide() {
-    clearInterval(waktuSlide);
-    var sl = document.querySelectorAll(".dasbor .slide"), tt = document.querySelectorAll(".dasbor .titik button"), ket = document.getElementById("ketSlide");
+  var waktuSlide = [];
+  function hentikanSlide() { waktuSlide.forEach(clearInterval); waktuSlide = []; }
+  function jalankanSlide(akar, G, ket, jeda) {
+    var sl = document.querySelectorAll(akar + " .slide"), tt = document.querySelectorAll(akar + " .titik button"), kini = 0, t;
     if (sl.length < 2) return;
-    var G = galeri(), kini = 0;
     var ke = function (n) {
       sl[kini].classList.remove("aktif"); if (tt[kini]) tt[kini].classList.remove("aktif");
       kini = (n + sl.length) % sl.length;
       void sl[kini].offsetWidth; sl[kini].classList.add("aktif"); if (tt[kini]) tt[kini].classList.add("aktif");
       if (ket) ket.textContent = G[kini].keterangan || "Ringkasan data Program Keahlian Teknik Kendaraan Ringan.";
     };
-    tt.forEach(function (b, i) { b.addEventListener("click", function () { ke(i); clearInterval(waktuSlide); waktuSlide = setInterval(function () { ke(kini + 1); }, 6500); }); });
-    waktuSlide = setInterval(function () { ke(kini + 1); }, 6500);
+    var mulai = function () { t = setInterval(function () { ke(kini + 1); }, jeda); waktuSlide.push(t); };
+    tt.forEach(function (b, i) { b.addEventListener("click", function () { ke(i); clearInterval(t); mulai(); }); });
+    mulai();
   }
 
   function itemUmum(p, buka) {
@@ -200,14 +207,13 @@
       var umum = urutTanggal(K.pengumuman).sort(function (a, b) { return (b.penting ? 1 : 0) - (a.penting ? 1 : 0); }).slice(0, 3);
       var berita = urutTanggal(K.berita).slice(0, 3);
       var kata = String(S.judulSambutan || "").replace(/^Selamat Datang Di Website Resmi\s*/i, "");
-      var latar = "";
-      if (S.latarBeranda) {
-        var sam = parseFloat(S.kesamaranLatar); if (isNaN(sam)) sam = 15; sam = Math.max(0, Math.min(100, sam));
-        latar = '<div class="hero-latar" style="background-image:url(\'' + esc(String(S.latarBeranda).replace(/'/g, "%27").replace(/\)/g, "%29")) + '\');opacity:' + (sam / 100) + '"></div>';
-      }
+      var GB = galeriBeranda();
+      var jelas = parseFloat(S.kejelasanLatar); if (isNaN(jelas) || !GB.foto) jelas = GB.foto ? 60 : 100;
+      jelas = Math.max(0, Math.min(100, jelas));
+      var latar = '<div class="hero-latar' + (GB.foto ? " foto" : "") + '" aria-hidden="true"><div class="hero-slide" style="opacity:' + (jelas / 100) + '">' + slides(GB.daftar) + "</div></div>";
       return '<section class="hero">' + latar + '<div class="hero-isi"><div>' +
         '<p class="hero-sapa">' + esc(S.kepanjangan || "Teknik Kendaraan Ringan") + "</p>" +
-        '<h1><span class="sub">Selamat Datang Di Website Resmi</span>' + esc(kata || S.judulSambutan) + "</h1>" +
+        '<h1><span class="sub">Selamat Datang Di Website Resmi</span><span class="nama">' + esc(kata || S.judulSambutan) + "</span></h1>" +
         '<p class="hero-desk">' + esc(S.sambutan) + "</p>" +
         '<div class="tombol-baris"><a class="tombol utama" href="#/profil">Lihat profil jurusan</a>' +
         '<a class="tombol garis-t" href="#/pengumuman">Baca pengumuman</a></div></div>' +
@@ -301,7 +307,8 @@
       document.querySelectorAll(".batang i").forEach(function (b) { b.style.width = b.getAttribute("data-w") + "%"; });
     });
     aktifkanBagikan();
-    if (r === "") jalankanSlide(); else clearInterval(waktuSlide);
+    hentikanSlide();
+    if (r === "") { jalankanSlide(".hero-latar", galeriBeranda().daftar, null, 8000); jalankanSlide(".dasbor", galeri(), document.getElementById("ketSlide"), 6500); }
     if (r === "berita" && !id) {
       var q = document.getElementById("q"), k = document.getElementById("k"), w = document.getElementById("daftarBerita");
       var tampil = function () {

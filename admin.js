@@ -15,14 +15,12 @@
       { k: "sambutan", l: "Teks sambutan di beranda", t: "area" },
       { k: "logo", l: "Logo jurusan TKR", t: "gambar", bantu: "Gunakan berkas PNG berlatar transparan agar tampil rapi." },
       { k: "logoSekolah", l: "Logo sekolah", t: "gambar", bantu: "Gunakan berkas PNG berlatar transparan agar tampil rapi." },
-      { k: "latarBeranda", l: "Gambar latar beranda", t: "gambar", maks: 1920, bantu: "Foto mendatar (landscape), misalnya suasana bengkel atau gedung sekolah. Gambar ditampilkan samar di belakang judul beranda." },
-      { k: "kesamaranLatar", l: "Kejelasan gambar latar (persen)", t: "angka", bantu: "0 berarti tidak terlihat, 100 berarti jelas penuh. Nilai yang disarankan 10 sampai 25. Bila dikosongkan, dipakai 15." },
       { k: "alamatWeb", l: "Alamat website (opsional)", bantu: "Kosongkan bila memakai alamat github.io. Isi hanya bila memakai domain sendiri, contoh: https://tkr.smkitalkautsar.sch.id/" },
       { k: "alamat", l: "Alamat" }, { k: "telepon", l: "Telepon" }, { k: "email", l: "Email" },
       { k: "instagram", l: "Tautan Instagram" }, { k: "youtube", l: "Tautan YouTube" }
     ],
     statistik: [{ k: "label", l: "Keterangan" }, { k: "nilai", l: "Nilai" }, { k: "satuan", l: "Satuan", bantu: "Tulis \"persen\" agar ditampilkan sebagai meter persentase." }],
-    galeri: [{ k: "gambar", l: "Gambar", t: "gambar", maks: 1920, bantu: "Foto mendatar, misalnya bengkel praktik, kegiatan siswa, atau gedung sekolah." }, { k: "keterangan", l: "Keterangan singkat (opsional)", bantu: "Tampil di bawah judul Dasbor jurusan saat gambar ini aktif." }],
+    galeri: [{ k: "gambar", l: "Gambar", t: "gambar", maks: 1920, bantu: "Foto mendatar, misalnya bengkel praktik, kegiatan siswa, atau gedung sekolah." }, { k: "keterangan", l: "Keterangan singkat (opsional)", bantu: "Untuk gambar dasbor, keterangan tampil di bawah judul Dasbor jurusan saat gambar aktif." }],
     kompetensi: [{ k: "judul", l: "Nama kompetensi" }, { k: "uraian", l: "Uraian", t: "area" }],
     fasilitas: [{ k: "nama", l: "Nama fasilitas" }, { k: "uraian", l: "Uraian", t: "area" }],
     pendidik: [{ k: "nama", l: "Nama lengkap dan gelar" }, { k: "jabatan", l: "Jabatan" }, { k: "bidang", l: "Bidang atau mata pelajaran" }, { k: "pendidikan", l: "Pendidikan terakhir" }, { k: "foto", l: "Foto", t: "gambar" }],
@@ -168,6 +166,14 @@
   var bagian = {
     situs: { t: "Identitas situs", r: function () { data.situs = data.situs || {}; return [kartuForm("Identitas dan kontak", F.situs.map(function (f) { return bidang(data.situs, f); }))]; } },
     statistik: { t: "Dasbor statistik", r: function () { data.statistik = data.statistik || []; return [el("p", { "class": "status", text: "Angka ini tampil pada dasbor di halaman beranda." }), daftarObjek(data.statistik, F.statistik, { judul: "label", tambahTeks: "Tambah statistik" })]; } },
+    beranda: { t: "Gambar latar beranda", r: function () {
+      data.situs = data.situs || {};
+      data.galeriBeranda = data.galeriBeranda || [];
+      if (data.situs.latarBeranda) { data.galeriBeranda.unshift({ gambar: data.situs.latarBeranda, keterangan: "" }); data.situs.latarBeranda = ""; ubah(); }
+      return [el("p", { "class": "status", text: "Gambar tampil di belakang judul beranda dan berganti otomatis setiap 8 detik. Bila daftar kosong, ilustrasi bawaan yang ditampilkan." }),
+        kartuForm("Tingkat kejelasan", [bidang(data.situs, { k: "kejelasanLatar", l: "Kejelasan foto latar (persen)", t: "angka", bantu: "Semakin kecil semakin samar. Nilai yang disarankan 40 sampai 70. Bila dikosongkan, dipakai 60." })]),
+        daftarObjek(data.galeriBeranda, F.galeri, { judul: "keterangan", tambahTeks: "Tambah gambar" })];
+    } },
     galeri: { t: "Gambar latar dasbor", r: function () { data.galeriDasbor = data.galeriDasbor || []; return [el("p", { "class": "status", text: "Gambar berganti otomatis setiap 6 detik di belakang dasbor beranda. Bila daftar kosong, ilustrasi bawaan yang ditampilkan." }), daftarObjek(data.galeriDasbor, F.galeri, { judul: "keterangan", tambahTeks: "Tambah gambar" })]; } },
     profil: { t: "Profil jurusan", r: function () {
       var P = data.profil = data.profil || {};

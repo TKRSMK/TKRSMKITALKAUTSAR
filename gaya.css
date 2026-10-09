@@ -1,7 +1,7 @@
 :root{
   --oranye:#FF5A14; --oranye-tua:#E54A06; --kuning:#FFC21A; --biru:#1550C9; --biru-tua:#0E3A9C; --biru-muda:#EAF1FF;
   --tinta:#0F1B3D; --abu:#5B6782; --garis:#E1E7F2; --latar:#F5F8FD; --putih:#FFFFFF;
-  --judul:"Sora","Plus Jakarta Sans","Segoe UI",Arial,sans-serif;
+  --judul:"Montserrat","Plus Jakarta Sans","Segoe UI",Arial,sans-serif;
   --badan:"Plus Jakarta Sans","Segoe UI",Roboto,Arial,sans-serif;
   --lebar:1180px; --rad:18px;
   --bayang:0 1px 2px rgba(15,27,61,.04),0 8px 24px rgba(15,27,61,.06);
@@ -17,7 +17,7 @@ img{max-width:100%; display:block}
 a{color:var(--biru)}
 :focus-visible{outline:3px solid var(--kuning); outline-offset:2px; border-radius:6px}
 .sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0)}
-h1,h2,h3{font-family:var(--judul); margin:0 0 .45em; letter-spacing:-.02em; font-weight:700}
+h1,h2,h3{font-family:var(--judul); margin:0 0 .45em; letter-spacing:-.01em; font-weight:700}
 h2{font-size:clamp(1.6rem,3vw,2.2rem); line-height:1.2}
 h3{font-size:1.12rem; line-height:1.35; font-weight:600}
 p{margin:0 0 1em}
@@ -39,7 +39,7 @@ p{margin:0 0 1em}
 .intro-teks{position:relative; text-align:center; padding:0 24px}
 .intro-teks .baris{display:block}
 .intro-teks .baris span{display:inline-block; opacity:0; transform:translateY(14px); filter:blur(6px); animation:muncul 1s .95s var(--halus) forwards; font:500 clamp(.95rem,2.2vw,1.2rem) var(--badan); color:#C8D5F5; letter-spacing:.02em}
-.intro-teks .besar span{font:700 clamp(1.7rem,4.8vw,3.3rem)/1.15 var(--judul); color:#fff; letter-spacing:-.02em; animation-delay:1.12s; margin-top:6px}
+.intro-teks .besar span{font:800 clamp(1.7rem,4.8vw,3.2rem)/1.15 var(--judul); color:#fff; letter-spacing:0; animation-delay:1.12s; margin-top:6px}
 @keyframes muncul{to{opacity:1; transform:none; filter:blur(0)}}
 .intro-muat{position:absolute; left:50%; bottom:calc(56px + env(safe-area-inset-bottom,0px)); width:160px; height:3px; margin-left:-80px; border-radius:3px; background:rgba(255,255,255,.14); overflow:hidden}
 .intro-muat i{display:block; height:100%; width:0; background:linear-gradient(90deg,var(--oranye),var(--kuning)); animation:muat 2.6s .2s cubic-bezier(.45,0,.2,1) forwards}
@@ -59,7 +59,7 @@ body.masuk .atas,body.masuk main{transition:opacity .9s .25s var(--halus), trans
 .merek{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--tinta); margin-right:auto}
 .merek img{width:44px; height:44px; object-fit:contain}
 .merek img + img{margin-left:-4px}
-.merek b{display:block; font:700 1.25rem/1.1 var(--judul); letter-spacing:-.02em; color:var(--tinta)}
+.merek b{display:block; font:800 1.2rem/1.1 var(--judul); letter-spacing:0; color:var(--tinta)}
 .merek b::after{content:""; display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--oranye); margin-left:3px; vertical-align:middle}
 .merek small{display:block; font-size:.76rem; font-weight:600; color:var(--abu)}
 .nav{display:flex; gap:4px; flex-wrap:wrap}
@@ -89,14 +89,20 @@ main.ganti{animation:masukHal .6s var(--halus)}
 
 /* Hero */
 .hero{background:var(--putih); position:relative; overflow:hidden}
-.hero-latar{position:absolute; inset:0; z-index:0; background-size:cover; background-position:center; pointer-events:none}
-.hero::before{content:""; position:absolute; top:0; bottom:0; right:-8%; width:42%; background:linear-gradient(90deg,var(--oranye) 0 34%,var(--kuning) 34% 62%,var(--biru) 62%); transform:skewX(-14deg); transform-origin:bottom; z-index:1}
+.hero-latar{position:absolute; inset:0; z-index:0; pointer-events:none; overflow:hidden}
+.hero-slide{position:absolute; inset:0}
+.hero-latar .slide{position:absolute; inset:-4%; background-size:cover; background-position:center; opacity:0; transition:opacity 2s ease}
+.hero-latar .slide.aktif{opacity:1; animation:geser 16s linear forwards}
+.hero-latar::after{content:""; position:absolute; inset:0; background:linear-gradient(90deg,rgba(255,255,255,.9) 0%,rgba(255,255,255,.72) 42%,rgba(255,255,255,.15) 75%,rgba(255,255,255,0) 100%)}
+.hero-latar.foto::after{background:linear-gradient(90deg,rgba(255,255,255,.94) 0%,rgba(255,255,255,.82) 40%,rgba(255,255,255,.25) 72%,rgba(255,255,255,.05) 100%)}
+.hero::before{content:""; position:absolute; top:0; bottom:0; right:-6%; width:30%; background:linear-gradient(90deg,var(--oranye) 0 34%,var(--kuning) 34% 62%,var(--biru) 62%); transform:skewX(-14deg); transform-origin:bottom; z-index:1; opacity:.92}
 .hero-isi{max-width:var(--lebar); margin:0 auto; padding:72px 24px 80px; display:grid; grid-template-columns:1.1fr .9fr; gap:40px; align-items:center; position:relative; z-index:2}
 .hero-sapa{display:inline-flex; align-items:center; gap:8px; font-weight:600; color:var(--oranye-tua); background:#FFF1E8; padding:6px 14px; border-radius:999px; margin:0 0 18px; font-size:.88rem}
 .hero-sapa::before{content:""; width:7px; height:7px; border-radius:50%; background:var(--oranye)}
-.hero h1{font-size:clamp(2.2rem,4.6vw,3.8rem); line-height:1.08; margin-bottom:20px}
-.hero h1 .sub{display:block; font:600 clamp(1rem,1.8vw,1.25rem)/1.4 var(--badan); letter-spacing:0; color:var(--abu); margin-bottom:10px}
-.hero-desk{max-width:52ch; color:var(--abu); font-size:1.04rem}
+.hero h1{font-size:clamp(2rem,4.2vw,3.4rem); line-height:1.12; font-weight:800; letter-spacing:-.005em; margin-bottom:20px}
+.hero h1 .nama{display:block; background:linear-gradient(90deg,var(--tinta),var(--biru-tua)); -webkit-background-clip:text; background-clip:text; color:transparent}
+.hero h1 .sub{display:block; font:600 clamp(1rem,1.8vw,1.2rem)/1.4 var(--badan); letter-spacing:0; color:#46526F; margin-bottom:12px}
+.hero-desk{max-width:52ch; color:#46526F; font-size:1.04rem}
 .tombol-baris{display:flex; gap:12px; flex-wrap:wrap; margin-top:28px}
 .tombol{display:inline-flex; align-items:center; gap:8px; padding:13px 24px; border-radius:999px; font-weight:600; text-decoration:none; border:1.5px solid transparent; cursor:pointer; font-size:.95rem; font-family:var(--badan); transition:transform .35s var(--halus), box-shadow .35s var(--halus), background .3s, color .3s}
 .tombol:hover{transform:translateY(-2px)}
@@ -128,7 +134,7 @@ main.ganti{animation:masukHal .6s var(--halus)}
 .meter .isi{fill:none; stroke-width:7; stroke-linecap:round; transition:stroke-dashoffset 1.6s var(--halus)}
 .meter:nth-child(4n+1) .isi{stroke:var(--oranye)} .meter:nth-child(4n+2) .isi{stroke:var(--kuning)}
 .meter:nth-child(4n+3) .isi{stroke:#5B9BFF} .meter:nth-child(4n+4) .isi{stroke:#2BD47D}
-.meter-n{font:700 1.9rem/1.1 var(--judul); letter-spacing:-.02em}
+.meter-n{font:700 1.9rem/1.1 var(--judul); letter-spacing:0}
 .meter-s{font-size:.78rem; color:#AFC0E6}
 .meter-l{font-weight:600; font-size:.88rem; line-height:1.35}
 
@@ -174,7 +180,7 @@ details.umum .umum-teks{padding-top:10px; color:var(--abu); animation:masukHal .
 .unggulan{grid-column:span 2; flex-direction:row}
 .unggulan .gambar{flex:1.2; aspect-ratio:auto; min-height:260px}
 .unggulan .badan{flex:1; padding:26px; align-self:center}
-.unggulan h3{font-size:1.45rem; letter-spacing:-.02em}
+.unggulan h3{font-size:1.4rem}
 .cari{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:24px}
 .cari input,.cari select{padding:12px 16px; border:1px solid var(--garis); border-radius:999px; font:inherit; background:#fff; color:var(--tinta); transition:border-color .3s, box-shadow .3s}
 .cari input:focus,.cari select:focus{outline:none; border-color:var(--biru); box-shadow:0 0 0 4px rgba(21,80,201,.12)}
@@ -248,7 +254,8 @@ details.umum .umum-teks{padding-top:10px; color:var(--abu); animation:masukHal .
   .nav.buka{visibility:visible; opacity:1; transform:none; transition:opacity .35s var(--halus), transform .35s var(--halus)}
   .nav a{padding:12px 14px}
   .hero-isi{grid-template-columns:1fr; padding-top:40px; padding-bottom:56px}
-  .hero::before{width:60%; right:-32%; top:0; bottom:auto; height:300px}
+  .hero::before{width:50%; right:-30%; top:0; bottom:auto; height:300px}
+  .hero-latar::after,.hero-latar.foto::after{background:linear-gradient(180deg,rgba(255,255,255,.35) 0,rgba(255,255,255,.88) 40%,rgba(255,255,255,.94) 100%)}
   .hero-logo{width:260px; justify-self:start; order:-1}
   .meter-kisi{grid-template-columns:repeat(2,1fr)}
   .kisi-2{grid-template-columns:1fr}
