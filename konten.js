@@ -89,9 +89,9 @@ window.KONTEN = {
   },
   "pendidik": [
     {
-      "nama": "Nama Lengkap, S.Pd.",
+      "nama": "Angga Retno Prabowo S.Trt",
       "jabatan": "Kepala Program Keahlian",
-      "bidang": "Engine",
+      "bidang": "Engine and Chasis ",
       "pendidikan": "S1 Pendidikan Teknik Otomotif",
       "foto": ""
     },
