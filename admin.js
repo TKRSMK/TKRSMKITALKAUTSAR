@@ -15,10 +15,14 @@
       { k: "sambutan", l: "Teks sambutan di beranda", t: "area" },
       { k: "logo", l: "Logo jurusan TKR", t: "gambar", bantu: "Gunakan berkas PNG berlatar transparan agar tampil rapi." },
       { k: "logoSekolah", l: "Logo sekolah", t: "gambar", bantu: "Gunakan berkas PNG berlatar transparan agar tampil rapi." },
+      { k: "latarBeranda", l: "Gambar latar beranda", t: "gambar", maks: 1920, bantu: "Foto mendatar (landscape), misalnya suasana bengkel atau gedung sekolah. Gambar ditampilkan samar di belakang judul beranda." },
+      { k: "kesamaranLatar", l: "Kejelasan gambar latar (persen)", t: "angka", bantu: "0 berarti tidak terlihat, 100 berarti jelas penuh. Nilai yang disarankan 10 sampai 25. Bila dikosongkan, dipakai 15." },
+      { k: "alamatWeb", l: "Alamat website (opsional)", bantu: "Kosongkan bila memakai alamat github.io. Isi hanya bila memakai domain sendiri, contoh: https://tkr.smkitalkautsar.sch.id/" },
       { k: "alamat", l: "Alamat" }, { k: "telepon", l: "Telepon" }, { k: "email", l: "Email" },
       { k: "instagram", l: "Tautan Instagram" }, { k: "youtube", l: "Tautan YouTube" }
     ],
     statistik: [{ k: "label", l: "Keterangan" }, { k: "nilai", l: "Nilai" }, { k: "satuan", l: "Satuan", bantu: "Tulis \"persen\" agar ditampilkan sebagai meter persentase." }],
+    galeri: [{ k: "gambar", l: "Gambar", t: "gambar", maks: 1920, bantu: "Foto mendatar, misalnya bengkel praktik, kegiatan siswa, atau gedung sekolah." }, { k: "keterangan", l: "Keterangan singkat (opsional)", bantu: "Tampil di bawah judul Dasbor jurusan saat gambar ini aktif." }],
     kompetensi: [{ k: "judul", l: "Nama kompetensi" }, { k: "uraian", l: "Uraian", t: "area" }],
     fasilitas: [{ k: "nama", l: "Nama fasilitas" }, { k: "uraian", l: "Uraian", t: "area" }],
     pendidik: [{ k: "nama", l: "Nama lengkap dan gelar" }, { k: "jabatan", l: "Jabatan" }, { k: "bidang", l: "Bidang atau mata pelajaran" }, { k: "pendidikan", l: "Pendidikan terakhir" }, { k: "foto", l: "Foto", t: "gambar" }],
@@ -48,7 +52,7 @@
   function perbaruiStatus(t) { var s = document.getElementById("status"); if (s) s.textContent = t; }
   function hariIni() { var d = new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
 
-  function kompres(file) {
+  function kompres(file, maksUkuran) {
     return new Promise(function (ok, gagal) {
       var r = new FileReader();
       r.onerror = gagal;
@@ -56,7 +60,7 @@
         var img = new Image();
         img.onerror = gagal;
         img.onload = function () {
-          var maks = 1200, s = Math.min(1, maks / Math.max(img.width, img.height));
+          var maks = maksUkuran || 1200, s = Math.min(1, maks / Math.max(img.width, img.height));
           var c = document.createElement("canvas"); c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
           c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
           ok(/png|svg/.test(file.type) ? c.toDataURL("image/png") : c.toDataURL("image/jpeg", 0.82));
@@ -91,7 +95,7 @@
       var berkas = el("input", { type: "file", accept: "image/*" });
       berkas.addEventListener("change", function () {
         if (!berkas.files[0]) return;
-        kompres(berkas.files[0]).then(function (url) { obj[f.k] = url; teks.value = "(gambar baru, akan diunggah saat diterbitkan)"; tampilPv(); ubah(); notif("Gambar ditambahkan."); })
+        kompres(berkas.files[0], f.maks).then(function (url) { obj[f.k] = url; teks.value = "(gambar baru, akan diunggah saat diterbitkan)"; tampilPv(); ubah(); notif("Gambar ditambahkan."); })
           .catch(function () { notif("Berkas tidak dapat dibaca sebagai gambar."); });
       });
       var hapus = el("button", { type: "button", "class": "tombol hapus kecil", text: "Hapus gambar", onclick: function () { obj[f.k] = ""; teks.value = ""; tampilPv(); ubah(); } });
@@ -164,6 +168,7 @@
   var bagian = {
     situs: { t: "Identitas situs", r: function () { data.situs = data.situs || {}; return [kartuForm("Identitas dan kontak", F.situs.map(function (f) { return bidang(data.situs, f); }))]; } },
     statistik: { t: "Dasbor statistik", r: function () { data.statistik = data.statistik || []; return [el("p", { "class": "status", text: "Angka ini tampil pada dasbor di halaman beranda." }), daftarObjek(data.statistik, F.statistik, { judul: "label", tambahTeks: "Tambah statistik" })]; } },
+    galeri: { t: "Gambar latar dasbor", r: function () { data.galeriDasbor = data.galeriDasbor || []; return [el("p", { "class": "status", text: "Gambar berganti otomatis setiap 6 detik di belakang dasbor beranda. Bila daftar kosong, ilustrasi bawaan yang ditampilkan." }), daftarObjek(data.galeriDasbor, F.galeri, { judul: "keterangan", tambahTeks: "Tambah gambar" })]; } },
     profil: { t: "Profil jurusan", r: function () {
       var P = data.profil = data.profil || {};
       ["kompetensi", "fasilitas"].forEach(function (k) { P[k] = P[k] || []; });
@@ -236,6 +241,26 @@
   }
 
   /* ---------- GitHub ---------- */
+  function namaBerkasBerita(id) { return String(id).replace(/[^A-Za-z0-9-]/g, "-"); }
+  function sidik(t) { var h = 5381; for (var i = 0; i < t.length; i++) h = ((h << 5) + h + t.charCodeAt(i)) | 0; return (h >>> 0).toString(36); }
+  function escH(t) { return String(t == null ? "" : t).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function halamanBagi(b, dasar) {
+    var abs = function (p) { return !p ? "" : /^https?:/.test(p) ? p : dasar + String(p).replace(/^\.?\//, ""); };
+    var gambar = abs(b.gambar) || abs((data.situs && data.situs.logo) || "logo-tkr.png");
+    var url = dasar + "berita/" + namaBerkasBerita(b.id) + ".html";
+    var tujuan = "../index.html#/berita/" + encodeURIComponent(b.id);
+    var judul = escH(b.judul || "Berita TKR SMK IT Al Kautsar Blitar"), desk = escH(b.ringkasan || "");
+    return '<!DOCTYPE html>\n<html lang="id">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n' +
+      "<title>" + judul + " | TKR SMK IT Al Kautsar Blitar</title>\n" +
+      '<meta name="description" content="' + desk + '">\n' +
+      '<meta property="og:type" content="article">\n<meta property="og:site_name" content="TKR SMK IT Al Kautsar Blitar">\n' +
+      '<meta property="og:title" content="' + judul + '">\n<meta property="og:description" content="' + desk + '">\n' +
+      '<meta property="og:image" content="' + escH(gambar) + '">\n<meta property="og:url" content="' + escH(url) + '">\n' +
+      '<meta name="twitter:card" content="summary_large_image">\n' +
+      '<meta http-equiv="refresh" content="0; url=' + escH(tujuan) + '">\n</head>\n<body>\n' +
+      '<p><a href="' + escH(tujuan) + '">Buka berita: ' + judul + "</a></p>\n" +
+      "<script>location.replace(" + JSON.stringify(tujuan) + ");</script>\n</body>\n</html>\n";
+  }
   function teksKonten(d) { return "window.KONTEN = " + JSON.stringify(d, null, 2) + ";\n"; }
   function keBase64(teks) { var by = new TextEncoder().encode(teks), s = ""; for (var i = 0; i < by.length; i += 0x8000) s += String.fromCharCode.apply(null, by.subarray(i, i + 0x8000)); return btoa(s); }
   function api(cfg, tk, jalur, metode, badan) {
@@ -270,6 +295,16 @@
         var nama = "gambar/" + hariIni() + "-" + Date.now().toString(36) + (n++) + (png ? ".png" : ".jpg");
         catat("Mengunggah " + nama);
         return tulis(cfg, tk, nama, it.o[it.k].split(",")[1], "Tambah gambar " + nama).then(function () { it.o[it.k] = nama; });
+      });
+    });
+    var dasar = (data.situs && data.situs.alamatWeb) ? String(data.situs.alamatWeb).replace(/\/?$/, "/") : "https://" + cfg.pemilik.toLowerCase() + ".github.io/" + cfg.repo + "/";
+    (data.berita || []).forEach(function (b) {
+      rantai = rantai.then(function () {
+        var tanda = sidik([dasar, b.id, b.judul, b.ringkasan, b.gambar, data.situs && data.situs.logo].join("|"));
+        if (b.halamanBagi === tanda) return;
+        var nama = "berita/" + namaBerkasBerita(b.id) + ".html";
+        catat("Membuat halaman bagikan " + nama);
+        return tulis(cfg, tk, nama, keBase64(halamanBagi(b, dasar)), "Halaman bagikan " + (b.judul || b.id)).then(function () { b.halamanBagi = tanda; });
       });
     });
     return rantai.then(function () {

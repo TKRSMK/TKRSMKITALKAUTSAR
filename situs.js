@@ -41,6 +41,43 @@
     return '<div class="gambar ' + (kelas || "") + '"><img src="' + esc(src) + '" alt="" loading="lazy"></div>';
   }
 
+  function namaBerkasBerita(id) { return String(id).replace(/[^A-Za-z0-9-]/g, "-"); }
+  function alamatDasar() {
+    if (S.alamatWeb) return String(S.alamatWeb).replace(/\/?$/, "/");
+    return location.origin + location.pathname.replace(/[^\/]*$/, "");
+  }
+  function tautanBerita(b) {
+    if (b.halamanBagi) return alamatDasar() + "berita/" + namaBerkasBerita(b.id) + ".html";
+    return alamatDasar() + "#/berita/" + encodeURIComponent(b.id);
+  }
+  function barisBagikan(b) {
+    var u = tautanBerita(b), t = b.judul || "Berita TKR SMK IT Al Kautsar Blitar";
+    var e = encodeURIComponent;
+    return '<div class="bagikan" data-url="' + esc(u) + '" data-judul="' + esc(t) + '"><span class="bagikan-l">Bagikan berita ini</span>' +
+      '<button type="button" class="bg bg-asli" hidden>Bagikan</button>' +
+      '<a class="bg bg-wa" target="_blank" rel="noopener" href="https://wa.me/?text=' + e(t + "\n" + u) + '">WhatsApp</a>' +
+      '<a class="bg bg-fb" target="_blank" rel="noopener" href="https://www.facebook.com/sharer/sharer.php?u=' + e(u) + '">Facebook</a>' +
+      '<a class="bg bg-tg" target="_blank" rel="noopener" href="https://t.me/share/url?url=' + e(u) + "&text=" + e(t) + '">Telegram</a>' +
+      '<a class="bg bg-x" target="_blank" rel="noopener" href="https://twitter.com/intent/tweet?text=' + e(t) + "&url=" + e(u) + '">X</a>' +
+      '<button type="button" class="bg bg-salin">Salin tautan</button></div>';
+  }
+  function aktifkanBagikan() {
+    document.querySelectorAll(".bagikan").forEach(function (w) {
+      var u = w.getAttribute("data-url"), t = w.getAttribute("data-judul");
+      var asli = w.querySelector(".bg-asli");
+      if (navigator.share) {
+        asli.hidden = false;
+        asli.addEventListener("click", function () { navigator.share({ title: t, text: t, url: u }).catch(function () {}); });
+      }
+      var salin = w.querySelector(".bg-salin");
+      salin.addEventListener("click", function () {
+        var ok = function () { salin.textContent = "Tautan tersalin"; setTimeout(function () { salin.textContent = "Salin tautan"; }, 2200); };
+        if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(u).then(ok, function () { window.prompt("Salin tautan berikut:", u); });
+        else window.prompt("Salin tautan berikut:", u);
+      });
+    });
+  }
+
   /* ---------- Logo & footer ---------- */
   function pasangLogo(ids, nilai, cadangan) {
     ids.forEach(function (id) {
@@ -65,18 +102,26 @@
     var hemat = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     var sudah = false;
     try { sudah = sessionStorage.getItem("tkr-intro") === "1"; } catch (e) {}
-    if (sudah || hemat || pratinjau) { box.classList.add("selesai"); return; }
+    var tautanLangsung = /^#\/./.test(location.hash);
+    if (sudah || hemat || pratinjau || tautanLangsung) { box.classList.add("selesai"); return; }
     try { sessionStorage.setItem("tkr-intro", "1"); } catch (e) {}
     document.body.style.overflow = "hidden";
-
+    document.body.classList.add("mulai");
     var tutup = function () {
       if (box.classList.contains("keluar")) return;
       box.classList.add("keluar");
-      setTimeout(function () { box.classList.add("selesai"); document.body.style.overflow = ""; }, 1200);
+      requestAnimationFrame(function () { document.body.classList.add("masuk"); document.body.classList.remove("mulai"); });
+      setTimeout(function () { box.classList.add("selesai"); document.body.style.overflow = ""; }, 1150);
+      setTimeout(function () { document.body.classList.remove("masuk"); }, 1600);
     };
     document.getElementById("introLewati").addEventListener("click", tutup);
-    setTimeout(tutup, 3000);
+    setTimeout(tutup, 3100);
   })();
+
+  /* ---------- Header saat digulir ---------- */
+  var atas = document.getElementById("atas");
+  var cekGulir = function () { atas.classList.toggle("gulir", window.scrollY > 8); };
+  window.addEventListener("scroll", cekGulir, { passive: true }); cekGulir();
 
   /* ---------- Menu ---------- */
   var menuBtn = document.getElementById("menuBtn"), nav = document.getElementById("nav");
@@ -104,6 +149,36 @@
       (persen ? "" : '<div class="meter-s">' + esc(st.satuan) + "</div>") + "</div></div>";
   }
 
+  var GALERI_BAWAAN = [{ gambar: "dasbor-1.svg" }, { gambar: "dasbor-2.svg" }, { gambar: "dasbor-3.svg" }];
+  function galeri() {
+    var g = (K.galeriDasbor || []).filter(function (x) { return x && x.gambar; });
+    return g.length ? g : GALERI_BAWAAN;
+  }
+  function urlCss(u) { return esc(String(u).replace(/'/g, "%27").replace(/\)/g, "%29")); }
+  function dasbor() {
+    var G = galeri(), ket0 = G[0].keterangan || "Ringkasan data Program Keahlian Teknik Kendaraan Ringan.";
+    return '<section class="dasbor" aria-label="Dasbor jurusan"><div class="dasbor-latar" aria-hidden="true">' +
+      G.map(function (g, i) { return '<div class="slide' + (i === 0 ? " aktif" : "") + '" style="background-image:url(\'' + urlCss(g.gambar) + '\')"></div>'; }).join("") +
+      '</div><div class="dasbor-isi"><div class="dasbor-kepala"><div><h2>Dasbor jurusan</h2><p id="ketSlide">' + esc(ket0) + "</p></div>" +
+      (G.length > 1 ? '<div class="titik">' + G.map(function (g, i) { return '<button type="button" aria-label="Gambar ' + (i + 1) + '"' + (i === 0 ? ' class="aktif"' : "") + "></button>"; }).join("") + "</div>" : "") +
+      '</div><div class="meter-kisi">' + (K.statistik || []).map(meter).join("") + "</div></div></section>";
+  }
+  var waktuSlide = null;
+  function jalankanSlide() {
+    clearInterval(waktuSlide);
+    var sl = document.querySelectorAll(".dasbor .slide"), tt = document.querySelectorAll(".dasbor .titik button"), ket = document.getElementById("ketSlide");
+    if (sl.length < 2) return;
+    var G = galeri(), kini = 0;
+    var ke = function (n) {
+      sl[kini].classList.remove("aktif"); if (tt[kini]) tt[kini].classList.remove("aktif");
+      kini = (n + sl.length) % sl.length;
+      void sl[kini].offsetWidth; sl[kini].classList.add("aktif"); if (tt[kini]) tt[kini].classList.add("aktif");
+      if (ket) ket.textContent = G[kini].keterangan || "Ringkasan data Program Keahlian Teknik Kendaraan Ringan.";
+    };
+    tt.forEach(function (b, i) { b.addEventListener("click", function () { ke(i); clearInterval(waktuSlide); waktuSlide = setInterval(function () { ke(kini + 1); }, 6500); }); });
+    waktuSlide = setInterval(function () { ke(kini + 1); }, 6500);
+  }
+
   function itemUmum(p, buka) {
     var d = new Date((p.tanggal || "") + "T00:00:00");
     var blok = isNaN(d) ? "" : '<div class="tanggal-blok"><b>' + d.getDate() + "</b><small>" +
@@ -125,15 +200,20 @@
       var umum = urutTanggal(K.pengumuman).sort(function (a, b) { return (b.penting ? 1 : 0) - (a.penting ? 1 : 0); }).slice(0, 3);
       var berita = urutTanggal(K.berita).slice(0, 3);
       var kata = String(S.judulSambutan || "").replace(/^Selamat Datang Di Website Resmi\s*/i, "");
-      return '<section class="hero"><div class="hero-isi"><div>' +
+      var latar = "";
+      if (S.latarBeranda) {
+        var sam = parseFloat(S.kesamaranLatar); if (isNaN(sam)) sam = 15; sam = Math.max(0, Math.min(100, sam));
+        latar = '<div class="hero-latar" style="background-image:url(\'' + esc(String(S.latarBeranda).replace(/'/g, "%27").replace(/\)/g, "%29")) + '\');opacity:' + (sam / 100) + '"></div>';
+      }
+      return '<section class="hero">' + latar + '<div class="hero-isi"><div>' +
         '<p class="hero-sapa">' + esc(S.kepanjangan || "Teknik Kendaraan Ringan") + "</p>" +
         '<h1><span class="sub">Selamat Datang Di Website Resmi</span>' + esc(kata || S.judulSambutan) + "</h1>" +
         '<p class="hero-desk">' + esc(S.sambutan) + "</p>" +
         '<div class="tombol-baris"><a class="tombol utama" href="#/profil">Lihat profil jurusan</a>' +
         '<a class="tombol garis-t" href="#/pengumuman">Baca pengumuman</a></div></div>' +
-        '<div class="hero-logo"><img class="lt" src="' + esc(S.logo || LOGO_CADANGAN) + '" onerror="this.src=\'' + LOGO_CADANGAN + '\'" alt="Logo TKR SMK IT Al Kautsar Blitar">' +
-        '<img class="ls" src="' + esc(S.logoSekolah || LOGO_SEKOLAH_CADANGAN) + '" onerror="this.src=\'' + LOGO_SEKOLAH_CADANGAN + '\'" alt="Logo SMK IT Al Kautsar Blitar"></div></div></section>' +
-        '<section class="dasbor" aria-label="Dasbor jurusan"><div class="dasbor-isi">' + (K.statistik || []).map(meter).join("") + "</div></section>" +
+        '<div class="hero-logo"><img class="ls" src="' + esc(S.logoSekolah || LOGO_SEKOLAH_CADANGAN) + '" onerror="this.src=\'' + LOGO_SEKOLAH_CADANGAN + '\'" alt="Logo SMK IT Al Kautsar Blitar">' +
+        '<img class="lt" src="' + esc(S.logo || LOGO_CADANGAN) + '" onerror="this.src=\'' + LOGO_CADANGAN + '\'" alt="Logo TKR SMK IT Al Kautsar Blitar"></div></div></section>' +
+        dasbor() +
         '<section class="bagian"><div class="wadah kisi-2">' +
         '<div class="panel"><div class="kepala-bag"><h2>Pengumuman</h2><a class="lihat" href="#/pengumuman">Semua pengumuman</a></div>' +
         (umum.length ? umum.map(function (p) { return itemUmum(p, false); }).join("") : '<p class="kosong-pesan">Belum ada pengumuman.</p>') + "</div>" +
@@ -202,7 +282,7 @@
         if (!b) return kepala("Berita tidak ditemukan", "Berita mungkin telah dihapus.", '<a href="#/berita">Berita</a>') + '<section class="bagian"><div class="wadah"><a class="tombol utama" href="#/berita">Kembali ke daftar berita</a></div></section>';
         var lain = L.filter(function (x) { return x.id !== b.id; }).slice(0, 3);
         return kepala(b.judul, (b.kategori || "Berita") + " | " + tgl(b.tanggal) + (b.penulis ? " | " + b.penulis : ""), '<a href="#/berita">Berita</a>') +
-          '<section class="bagian"><article class="wadah artikel">' + gambar(b.gambar) + '<div class="artikel-teks">' + paragraf(b.isi) + "</div>" +
+          '<section class="bagian"><article class="wadah artikel">' + gambar(b.gambar) + barisBagikan(b) + '<div class="artikel-teks">' + paragraf(b.isi) + "</div>" + barisBagikan(b) +
           '<p><a class="tombol garis-t" href="#/berita">Kembali ke daftar berita</a></p></article></section>' +
           (lain.length ? '<section class="bagian" style="padding-top:0"><div class="wadah"><h2>Berita lainnya</h2><div class="kisi-berita">' + lain.map(function (x) { return kartuBerita(x); }).join("") + "</div></div></section>" : "");
       }
@@ -220,6 +300,8 @@
       document.querySelectorAll(".meter .isi").forEach(function (c) { c.style.strokeDashoffset = c.getAttribute("data-akhir"); });
       document.querySelectorAll(".batang i").forEach(function (b) { b.style.width = b.getAttribute("data-w") + "%"; });
     });
+    aktifkanBagikan();
+    if (r === "") jalankanSlide(); else clearInterval(waktuSlide);
     if (r === "berita" && !id) {
       var q = document.getElementById("q"), k = document.getElementById("k"), w = document.getElementById("daftarBerita");
       var tampil = function () {
@@ -236,12 +318,12 @@
   var judulDasar = "TKR SMK IT Al Kautsar Blitar";
   var namaHal = { profil: "Profil Jurusan", pendidik: "Tenaga Pendidik", alumni: "Lulusan dan Alumni", pengumuman: "Pengumuman", berita: "Berita" };
 
-  function jalankan() {
+  function tampilkan() {
     var h = location.hash.replace(/^#\/?/, "").split("/");
     var r = h[0] || "", id = h[1] ? decodeURIComponent(h[1]) : "";
     if (!hal[r]) r = "";
     var main = document.getElementById("isi");
-    main.classList.remove("ganti"); void main.offsetWidth; main.classList.add("ganti");
+    main.classList.remove("ganti", "pergi"); void main.offsetWidth; main.classList.add("ganti");
     main.innerHTML = hal[r](id);
     setelRender(r, id);
     document.querySelectorAll(".nav a").forEach(function (a) { a.classList.toggle("aktif", a.getAttribute("data-r") === r); });
@@ -249,6 +331,13 @@
     document.title = (r ? namaHal[r] + " | " : "Beranda | ") + judulDasar;
     if (r === "pengumuman" && id) { var el = document.getElementById(id); if (el) el.scrollIntoView(); }
     else window.scrollTo(0, 0);
+  }
+  var pertama = true;
+  function jalankan() {
+    if (pertama) { pertama = false; tampilkan(); return; }
+    var main = document.getElementById("isi");
+    main.classList.add("pergi");
+    setTimeout(tampilkan, 190);
   }
   window.addEventListener("hashchange", jalankan);
   jalankan();
