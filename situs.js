@@ -50,10 +50,14 @@
     if (b.halamanBagi) return alamatDasar() + "berita/" + namaBerkasBerita(b.id) + ".html";
     return alamatDasar() + "#/berita/" + encodeURIComponent(b.id);
   }
-  function barisBagikan(b) {
-    var u = tautanBerita(b), t = b.judul || "Berita TKR SMK IT Al Kautsar Blitar";
+  function tautanUmum(p) {
+    if (p.halamanBagi) return alamatDasar() + "pengumuman/" + namaBerkasBerita(p.id) + ".html";
+    return alamatDasar() + "#/pengumuman/" + encodeURIComponent(p.id);
+  }
+  function barisBagikan(b, umum) {
+    var u = umum ? tautanUmum(b) : tautanBerita(b), t = b.judul || (umum ? "Pengumuman" : "Berita") + " TKR SMK IT Al Kautsar Blitar";
     var e = encodeURIComponent;
-    return '<div class="bagikan" data-url="' + esc(u) + '" data-judul="' + esc(t) + '"><span class="bagikan-l">Bagikan berita ini</span>' +
+    return '<div class="bagikan' + (umum ? " ringkas" : "") + '" data-url="' + esc(u) + '" data-judul="' + esc(t) + '"><span class="bagikan-l">Bagikan ' + (umum ? "pengumuman" : "berita") + ' ini</span>' +
       '<button type="button" class="bg bg-asli" hidden>Bagikan</button>' +
       '<a class="bg bg-wa" target="_blank" rel="noopener" href="https://wa.me/?text=' + e(t + "\n" + u) + '">WhatsApp</a>' +
       '<a class="bg bg-fb" target="_blank" rel="noopener" href="https://www.facebook.com/sharer/sharer.php?u=' + e(u) + '">Facebook</a>' +
@@ -192,8 +196,22 @@
       d.toLocaleDateString("id-ID", { month: "short" }) + "</small></div>";
     return '<details class="umum"' + (buka ? " open" : "") + ' id="' + esc(p.id) + '"><summary><div class="umum-baris">' + blok + '<div style="flex:1">' +
       '<div class="umum-atas">' + (p.penting ? '<span class="lencana penting">Penting</span>' : "") +
+      ((p.lampiran || []).length ? '<span class="lencana lamp-lencana">' + p.lampiran.length + " lampiran</span>" : "") +
       '<span class="lencana">' + esc(p.kategori || "Umum") + "</span><span>" + tgl(p.tanggal) + "</span></div>" +
-      "<h3>" + esc(p.judul) + "</h3></div></div></summary><div class='umum-teks'>" + paragraf(p.isi) + "</div></details>";
+      "<h3>" + esc(p.judul) + "</h3></div></div></summary><div class='umum-teks'>" + paragraf(p.isi) + lampiranUmum(p.lampiran) + "</div>" + barisBagikan(p, true) + "</details>";
+  }
+  function lampiranUmum(L) {
+    L = (L || []).filter(function (a) { return a && a.berkas; });
+    if (!L.length) return "";
+    var gb = L.filter(function (a) { return a.jenis === "gambar"; }), bk = L.filter(function (a) { return a.jenis !== "gambar"; });
+    return '<div class="lampiran">' +
+      (gb.length ? '<div class="lamp-galeri">' + gb.map(function (a) {
+        return '<a href="' + esc(a.berkas) + '" target="_blank" rel="noopener" title="Buka gambar"><img src="' + esc(a.berkas) + '" alt="' + esc(a.nama || "Lampiran gambar") + '" loading="lazy"></a>';
+      }).join("") + "</div>" : "") +
+      (bk.length ? '<div class="lamp-berkas"><b>Berkas lampiran</b>' + bk.map(function (a) {
+        var eks = (String(a.nama || a.berkas).split(".").pop() || "file").toUpperCase().slice(0, 4);
+        return '<a class="lamp" href="' + esc(a.berkas) + '" target="_blank" rel="noopener" download="' + esc(a.nama || "") + '"><span class="lamp-ikon">' + esc(eks) + '</span><span class="lamp-nama">' + esc(a.nama || "Berkas") + (a.ukuran ? "<small>" + esc(a.ukuran) + "</small>" : "") + '</span><span class="lamp-unduh">Unduh</span></a>';
+      }).join("") + "</div>" : "") + "</div>";
   }
 
   function kartuBerita(b, unggul) {

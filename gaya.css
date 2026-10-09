@@ -162,6 +162,21 @@ details.umum .umum-teks{padding-top:10px; color:var(--abu); animation:masukHal .
 .tanggal-blok b{display:block; font:700 1.35rem/1.1 var(--judul)}
 .tanggal-blok small{font-size:.7rem; font-weight:600; color:var(--oranye-tua)}
 .umum-baris{display:flex; gap:14px; align-items:flex-start}
+.lencana.lamp-lencana{background:#FFF4D6; color:#8A5A00}
+.lampiran{margin-top:14px}
+.lamp-galeri{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px; margin-bottom:14px}
+.lamp-galeri a{display:block; border-radius:12px; overflow:hidden; border:1px solid var(--garis); aspect-ratio:4/3; background:var(--latar)}
+.lamp-galeri img{width:100%; height:100%; object-fit:cover; transition:transform .45s var(--halus)}
+.lamp-galeri a:hover img{transform:scale(1.04)}
+.lamp-berkas{display:grid; gap:8px}
+.lamp-berkas b{color:var(--tinta); font-size:.9rem}
+.lamp{display:flex; align-items:center; gap:12px; padding:10px 12px; border:1px solid var(--garis); border-radius:12px; background:#fff; text-decoration:none; color:var(--tinta)}
+.lamp:hover{border-color:var(--biru); background:var(--biru-muda)}
+.lamp-ikon{flex:none; width:46px; height:46px; border-radius:10px; background:var(--tinta); color:#fff; display:flex; align-items:center; justify-content:center; font:700 .72rem var(--judul)}
+.lamp-nama{flex:1; min-width:0; overflow-wrap:anywhere; font-weight:600; font-size:.92rem; line-height:1.35}
+.lamp-nama small{display:block; font-weight:500; color:var(--abu)}
+.lamp-unduh{flex:none; font-weight:700; font-size:.85rem; color:var(--biru)}
+.bagikan.ringkas{margin:14px 0 4px; padding:10px 0 0; border-bottom:0}
 
 /* Berita */
 .kisi-berita{display:grid; grid-template-columns:repeat(3,1fr); gap:22px}

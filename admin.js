@@ -26,7 +26,7 @@
     pendidik: [{ k: "nama", l: "Nama lengkap dan gelar" }, { k: "jabatan", l: "Jabatan" }, { k: "bidang", l: "Bidang atau mata pelajaran" }, { k: "pendidikan", l: "Pendidikan terakhir" }, { k: "foto", l: "Foto", t: "gambar" }],
     serapan: [{ k: "label", l: "Kategori" }, { k: "persen", l: "Persentase", t: "angka" }],
     daftarAlumni: [{ k: "nama", l: "Nama alumni" }, { k: "angkatan", l: "Tahun lulus" }, { k: "posisi", l: "Posisi atau status" }, { k: "tempat", l: "Tempat kerja atau studi" }, { k: "testimoni", l: "Testimoni", t: "area" }, { k: "foto", l: "Foto", t: "gambar" }],
-    pengumuman: [{ k: "judul", l: "Judul" }, { k: "tanggal", l: "Tanggal", t: "tanggal" }, { k: "kategori", l: "Kategori" }, { k: "penting", l: "Tandai sebagai penting", t: "cek" }, { k: "isi", l: "Isi pengumuman", t: "area", bantu: "Pisahkan paragraf dengan satu baris kosong." }],
+    pengumuman: [{ k: "judul", l: "Judul" }, { k: "tanggal", l: "Tanggal", t: "tanggal" }, { k: "kategori", l: "Kategori" }, { k: "penting", l: "Tandai sebagai penting", t: "cek" }, { k: "isi", l: "Isi pengumuman", t: "area", bantu: "Pisahkan paragraf dengan satu baris kosong." }, { k: "lampiran", l: "Gambar atau berkas lampiran", t: "lampiran", bantu: "Dapat memilih beberapa berkas sekaligus: gambar (JPG, PNG), PDF, Word, Excel, PowerPoint, atau ZIP. Ukuran maksimal 15 MB per berkas. Gambar otomatis diperkecil. Untuk berkas berukuran besar, segera terbitkan setelah ditambahkan." }],
     berita: [{ k: "judul", l: "Judul berita" }, { k: "tanggal", l: "Tanggal", t: "tanggal" }, { k: "kategori", l: "Kategori" }, { k: "penulis", l: "Penulis" }, { k: "gambar", l: "Gambar utama", t: "gambar" }, { k: "ringkasan", l: "Ringkasan singkat", t: "area" }, { k: "isi", l: "Isi berita", t: "area", bantu: "Pisahkan paragraf dengan satu baris kosong." }]
   };
 
@@ -69,8 +69,55 @@
     });
   }
 
+  var MAKS_LAMPIRAN = 15 * 1024 * 1024;
+  function bacaBerkas(file) {
+    return new Promise(function (ok, gagal) { var r = new FileReader(); r.onerror = gagal; r.onload = function () { ok(r.result); }; r.readAsDataURL(file); });
+  }
+  function apakahGambar(nama, jenis) { return /^image\//.test(jenis || "") || /\.(jpe?g|png|gif|webp)$/i.test(nama || ""); }
+  function ukuranTeks(b) { return b > 1048576 ? (b / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round(b / 1024)) + " KB"; }
+
+  function bidangLampiran(obj, f) {
+    if (!Array.isArray(obj[f.k])) obj[f.k] = [];
+    var arr = obj[f.k];
+    var w = el("div", { "class": "bidang" }, [el("label", { text: f.l })]), daftar = el("div");
+    function isi() {
+      daftar.innerHTML = "";
+      if (!arr.length) daftar.appendChild(el("p", { "class": "status", text: "Belum ada lampiran." }));
+      arr.forEach(function (a, i) {
+        var pv = a.jenis === "gambar" ? el("img", { src: a.berkas, alt: "" }) : el("span", { "class": "ikon-berkas", text: (String(a.nama).split(".").pop() || "file").toUpperCase().slice(0, 4) });
+        var nm = el("input", { type: "text", title: "Nama yang ditampilkan" }); nm.value = a.nama || "";
+        nm.addEventListener("input", function () { a.nama = nm.value; ubah(); });
+        var ket = /^data:/.test(a.berkas) ? "Baru, akan diunggah saat diterbitkan" : a.berkas;
+        daftar.appendChild(el("div", { "class": "lamp-baris" }, [pv, el("div", { style: "flex:1;min-width:0" }, [nm, el("div", { "class": "bantu", text: ket })]),
+          el("button", { type: "button", "class": "tombol hapus kecil", text: "Hapus", onclick: function () { arr.splice(i, 1); ubah(); isi(); } })]));
+      });
+    }
+    var pilih = el("input", { type: "file", multiple: "multiple", accept: "image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.rar,.txt" });
+    pilih.addEventListener("change", function () {
+      var berkas = Array.prototype.slice.call(pilih.files);
+      var rantai = Promise.resolve();
+      berkas.forEach(function (fl) {
+        rantai = rantai.then(function () {
+          if (fl.size > MAKS_LAMPIRAN) { notif(fl.name + " lebih dari 15 MB sehingga tidak ditambahkan."); return; }
+          var gb = apakahGambar(fl.name, fl.type) && !/gif/i.test(fl.type);
+          return (gb ? kompres(fl, 1600) : bacaBerkas(fl)).then(function (url) {
+            arr.push({ nama: fl.name, berkas: url, jenis: apakahGambar(fl.name, fl.type) ? "gambar" : "berkas", ukuran: gb ? "" : ukuranTeks(fl.size) });
+          });
+        });
+      });
+      rantai.then(function () { pilih.value = ""; ubah(); isi(); notif("Lampiran ditambahkan."); })
+        .catch(function () { notif("Berkas tidak dapat dibaca."); });
+    });
+    isi();
+    w.appendChild(daftar);
+    w.appendChild(el("div", { style: "margin-top:8px" }, [pilih]));
+    if (f.bantu) w.appendChild(el("div", { "class": "bantu", text: f.bantu }));
+    return w;
+  }
+
   /* ---------- Pembuat bidang ---------- */
   function bidang(obj, f, segar) {
+    if (f.t === "lampiran") return bidangLampiran(obj, f);
     var w = el("div", { "class": "bidang" }), id = "f" + Math.random().toString(36).slice(2);
     w.appendChild(el("label", { "for": id, text: f.l }));
     var inp;
@@ -195,7 +242,7 @@
         kartuForm("Cerita alumni", [daftarObjek(A.daftar, F.daftarAlumni, { judul: "nama", tambahTeks: "Tambah alumni", diAtas: true })])
       ];
     } },
-    pengumuman: { t: "Pengumuman", r: function () { data.pengumuman = data.pengumuman || []; return [daftarObjek(data.pengumuman, F.pengumuman, { judul: "judul", tambahTeks: "Tambah pengumuman", diAtas: true, baru: function () { return { id: "p" + Date.now(), judul: "", tanggal: hariIni(), kategori: "Umum", penting: false, isi: "" }; } })]; } },
+    pengumuman: { t: "Pengumuman", r: function () { data.pengumuman = data.pengumuman || []; return [daftarObjek(data.pengumuman, F.pengumuman, { judul: "judul", tambahTeks: "Tambah pengumuman", diAtas: true, baru: function () { return { id: "p" + Date.now(), judul: "", tanggal: hariIni(), kategori: "Umum", penting: false, isi: "", lampiran: [] }; } })]; } },
     berita: { t: "Berita", r: function () { data.berita = data.berita || []; return [daftarObjek(data.berita, F.berita, { judul: "judul", tambahTeks: "Tulis berita baru", diAtas: true, baru: function () { return { id: "b" + Date.now(), judul: "", tanggal: hariIni(), kategori: "Kegiatan", penulis: "Admin TKR", gambar: "", ringkasan: "", isi: "" }; } })]; } },
     terbit: { t: "Simpan dan terbitkan", r: panelTerbit }
   };
@@ -250,11 +297,12 @@
   function namaBerkasBerita(id) { return String(id).replace(/[^A-Za-z0-9-]/g, "-"); }
   function sidik(t) { var h = 5381; for (var i = 0; i < t.length; i++) h = ((h << 5) + h + t.charCodeAt(i)) | 0; return (h >>> 0).toString(36); }
   function escH(t) { return String(t == null ? "" : t).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
-  function halamanBagi(b, dasar) {
+  function halamanBagi(b, dasar, folder) {
+    folder = folder || "berita";
     var abs = function (p) { return !p ? "" : /^https?:/.test(p) ? p : dasar + String(p).replace(/^\.?\//, ""); };
     var gambar = abs(b.gambar) || abs((data.situs && data.situs.logo) || "logo-tkr.png");
-    var url = dasar + "berita/" + namaBerkasBerita(b.id) + ".html";
-    var tujuan = "../index.html#/berita/" + encodeURIComponent(b.id);
+    var url = dasar + folder + "/" + namaBerkasBerita(b.id) + ".html";
+    var tujuan = "../index.html#/" + folder + "/" + encodeURIComponent(b.id);
     var judul = escH(b.judul || "Berita TKR SMK IT Al Kautsar Blitar"), desk = escH(b.ringkasan || "");
     return '<!DOCTYPE html>\n<html lang="id">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n' +
       "<title>" + judul + " | TKR SMK IT Al Kautsar Blitar</title>\n" +
@@ -264,7 +312,7 @@
       '<meta property="og:image" content="' + escH(gambar) + '">\n<meta property="og:url" content="' + escH(url) + '">\n' +
       '<meta name="twitter:card" content="summary_large_image">\n' +
       '<meta http-equiv="refresh" content="0; url=' + escH(tujuan) + '">\n</head>\n<body>\n' +
-      '<p><a href="' + escH(tujuan) + '">Buka berita: ' + judul + "</a></p>\n" +
+      '<p><a href="' + escH(tujuan) + '">Buka ' + folder + ": " + judul + "</a></p>\n" +
       "<script>location.replace(" + JSON.stringify(tujuan) + ");</script>\n</body>\n</html>\n";
   }
   function teksKonten(d) { return "window.KONTEN = " + JSON.stringify(d, null, 2) + ";\n"; }
@@ -290,15 +338,19 @@
     (function cari(o) {
       if (!o || typeof o !== "object") return;
       Object.keys(o).forEach(function (k) {
-        if (typeof o[k] === "string" && /^data:image\//.test(o[k])) antre.push({ o: o, k: k });
+        if (typeof o[k] === "string" && /^data:[^,]*;base64,/.test(o[k])) antre.push({ o: o, k: k });
         else cari(o[k]);
       });
     })(data);
     var rantai = Promise.resolve();
     antre.forEach(function (it) {
       rantai = rantai.then(function () {
-        var png = /^data:image\/png/.test(it.o[it.k]);
-        var nama = "gambar/" + hariIni() + "-" + Date.now().toString(36) + (n++) + (png ? ".png" : ".jpg");
+        var png = /^data:image\/png/.test(it.o[it.k]), nama;
+        if (it.k === "berkas" && it.o.nama) {
+          var bersih = String(it.o.nama).toLowerCase().replace(/[^a-z0-9.\-]+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "") || "berkas";
+          if (it.o.jenis === "gambar" && /^data:image\/(png|jpeg)/.test(it.o[it.k])) bersih = bersih.replace(/\.[a-z0-9]+$/, "") + (png ? ".png" : ".jpg");
+          nama = "lampiran/" + hariIni() + "-" + Date.now().toString(36) + (n++) + "-" + bersih;
+        } else nama = "gambar/" + hariIni() + "-" + Date.now().toString(36) + (n++) + (png ? ".png" : ".jpg");
         catat("Mengunggah " + nama);
         return tulis(cfg, tk, nama, it.o[it.k].split(",")[1], "Tambah gambar " + nama).then(function () { it.o[it.k] = nama; });
       });
@@ -311,6 +363,17 @@
         var nama = "berita/" + namaBerkasBerita(b.id) + ".html";
         catat("Membuat halaman bagikan " + nama);
         return tulis(cfg, tk, nama, keBase64(halamanBagi(b, dasar)), "Halaman bagikan " + (b.judul || b.id)).then(function () { b.halamanBagi = tanda; });
+      });
+    });
+    (data.pengumuman || []).forEach(function (p) {
+      rantai = rantai.then(function () {
+        var gb = (p.lampiran || []).filter(function (a) { return a.jenis === "gambar"; })[0];
+        var tanda = sidik([dasar, p.id, p.judul, p.isi, gb && gb.berkas, data.situs && data.situs.logo].join("|"));
+        if (p.halamanBagi === tanda) return;
+        var nama = "pengumuman/" + namaBerkasBerita(p.id) + ".html";
+        catat("Membuat halaman bagikan " + nama);
+        var setara = { id: p.id, judul: p.judul || "Pengumuman TKR SMK IT Al Kautsar Blitar", ringkasan: String(p.isi || "").replace(/\s+/g, " ").slice(0, 180), gambar: gb ? gb.berkas : "" };
+        return tulis(cfg, tk, nama, keBase64(halamanBagi(setara, dasar, "pengumuman")), "Halaman bagikan " + (p.judul || p.id)).then(function () { p.halamanBagi = tanda; });
       });
     });
     return rantai.then(function () {
